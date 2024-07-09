@@ -2,7 +2,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
 
-public class OneDNimGrundy {
+public class MultiPileOptimal {
     private static HashMap<String, Integer> grundyCache = new HashMap<>();
 
     public static void main(String[] args) {

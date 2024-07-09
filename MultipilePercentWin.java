@@ -7,7 +7,7 @@ import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
 
-public class suboptimalmultipile {
+public class MultipilePercentWin {
     private static HashMap<String, Integer> grundyCache = new HashMap<>();
     private static Random random = new Random();
     private static PrintWriter moveLogger;

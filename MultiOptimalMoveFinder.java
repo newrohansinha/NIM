@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class test{
+public class MultiOptimalMoveFinder{
     public static void main(String[] args) {
         int maxX = 20;
         int maxY = 20;
