@@ -1,10 +1,10 @@
 import java.util.Random;
 import java.util.Scanner;
 
-public class model3 {
+public class Strategy4 {
     public static void main(String[] args) {
         Scanner reader = new Scanner(System.in);
-        System.out.println("Strategy 3: Pick random optimal and random move if no optimal\n");
+        System.out.println("Strategy 4: Pick random optimal and minimum move if no optimal\n");
         System.out.println("Enter X:");
         int x = reader.nextInt();
         System.out.println("Enter Y:");
@@ -31,9 +31,9 @@ public class model3 {
             }
         }
 
-
         Random rand = new Random();
 
+        // Counters for win percentages
         int player1Wins = 0;
         int player2Wins = 0;
         for (int i = 0; i < 100000; i++) {
@@ -49,11 +49,8 @@ public class model3 {
 
         System.out.println("Player 1 wins: " + (double)player1Wins/1000+"%");
         System.out.println("Player 2 wins: " + (double)player2Wins/1000+"%");
-
-
-        System.out.println("Player 1 wins: " + (double)player1Wins/10+"%");
-        System.out.println("Player 2 wins: " + (double)player2Wins/10+"%");
         reader.close();
+
     }
 
     /**
@@ -66,7 +63,7 @@ public class model3 {
      * @param player1Accuracy The accuracy of Player 1.
      * @param player2Accuracy The accuracy of Player 2.
      * @param rand            Random generator.
-     * @return The winner player number (1 or 2).
+     * @return The winner of the game (1 for Player 1, 2 for Player 2).
      */
     private static int simulateGame(int sticks, int x, int y, int[] winTable, double player1Accuracy, double player2Accuracy, Random rand) {
         boolean player1Turn = true;
@@ -80,24 +77,22 @@ public class model3 {
             if (canWin) { // Player can potentially win
                 move = randomOptimalMove(sticks, x, y, winTable, rand);
                 if (rand.nextDouble() > accuracy) { // Use a suboptimal move instead
-                    if(x!=move)move=x;
-                    if(y!=move)move=y;
-                    if(1!=move)move=1; // Choose a random valid move
+                    move = minimumMove(sticks, x, y); // Choose the smallest valid move
                 }
             } else { // Player is in a losing position
-                move = randomValidMove(sticks, x, y, rand); // Choose a random valid move
+                move = minimumMove(sticks, x, y); // Always choose the smallest valid move
             }
 
             sticks -= move;
 
             if (sticks <= 0) {
-                return currentPlayer; // Winner
+                return currentPlayer;
             }
 
             player1Turn = !player1Turn; // Switch turns
         }
 
-        return 0; // Should never reach this point
+        return -1; // Should never reach here
     }
 
     /**
@@ -126,24 +121,27 @@ public class model3 {
         }
 
         // Fallback if no winning move found
-        return randomValidMove(sticks, x, y, rand);
+        return minimumMove(sticks, x, y);
     }
 
     /**
-     * Determines a random valid move available.
+     * Determines the smallest valid move available.
      *
      * @param sticks The current number of sticks.
      * @param x      The first special move.
      * @param y      The second special move.
-     * @param rand   Random number generator.
-     * @return A random valid move.
+     * @return The smallest valid move.
      */
-    private static int randomValidMove(int sticks, int x, int y, Random rand) {
+    private static int minimumMove(int sticks, int x, int y) {
         int[] possibleMoves = {1, x, y};
-        int move;
-        do {
-            move = possibleMoves[rand.nextInt(possibleMoves.length)];
-        } while (sticks - move < 0); // Ensure the move is valid
-        return move;
+        int minMove = Integer.MAX_VALUE;
+
+        for (int move : possibleMoves) {
+            if (sticks - move >= 0) {
+                minMove = Math.min(minMove, move);
+            }
+        }
+
+        return minMove;
     }
 }

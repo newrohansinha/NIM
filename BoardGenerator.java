@@ -1,6 +1,6 @@
 import java.util.Scanner;
 
-public class board {
+public class BoardGenerator {
     public static void main(String[] args) {
         Scanner reader = new Scanner(System.in);
         System.out.println("Enter maximum sticks for analysis:");

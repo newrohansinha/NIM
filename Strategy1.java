@@ -1,10 +1,10 @@
 import java.util.Random;
 import java.util.Scanner;
 
-public class model2 {
+public class Strategy1 {
     public static void main(String[] args) {
         Scanner reader = new Scanner(System.in);
-        System.out.println("Strategy 2: Pick Max optimal and random move if no optimal\n");
+        System.out.println("Strategy 1: Pick Max optimal and Min move if no optimal\n");
         System.out.println("Enter X:");
         int x = reader.nextInt();
         System.out.println("Enter Y:");
@@ -14,7 +14,7 @@ public class model2 {
         System.out.println("Enter Player 2 accuracy (0.0 to 1.0):");
         double player2Accuracy = reader.nextDouble();
 
-        int maxSticks = 1000;
+        int maxSticks = 5000;
         int[] winTable = new int[maxSticks + 1];
         winTable[0] = 2; // Losing position for the starting player
 
@@ -35,28 +35,29 @@ public class model2 {
         Random rand = new Random();
 
 
-
-
-        // Start simulating the game for each starting number of sticks from 0 to 1000
         int player1Wins = 0;
         int player2Wins = 0;
-        for (int i = 0; i < 100000; i++) {
-            int winner = simulateGame(100, x, y, winTable, player1Accuracy, player2Accuracy, rand);
-            if (winner == 1) {
-                player1Wins++;
-            } else if (winner == 2) {
-                player2Wins++;
+        // Start simulating the game for each starting number of sticks from 0 to 1000
+        for(int s =20;s<=100;s++) {
+          
+            for (int i = 0; i < 10000; i++) {
+                int winner = simulateGame(s, x, y, winTable, player1Accuracy, player2Accuracy, rand);
+                if (winner == 1) {
+                    player1Wins++;
+                } else if (winner == 2) {
+                    player2Wins++;
 
+                }
             }
+     
+
+           
         }
-
-
-        System.out.println("Player 1 wins: " + (double)player1Wins/1000+"%");
-        System.out.println("Player 2 wins: " + (double)player2Wins/1000+"%");
-
+        System.out.println("Player 1 wins: " + (double)player1Wins/100+"%");
+        System.out.println("Player 2 wins: " + (double)player2Wins/100+"%");
         reader.close();
-    }
 
+    }
 
     /**
      * Simulates the game from a given starting number of sticks with controlled imperfections.
@@ -84,10 +85,10 @@ public class model2 {
                 if (rand.nextDouble() > accuracy) { // Use a suboptimal move instead
                     if(x!=move)move=x;
                     if(y!=move)move=y;
-                    if(1!=move)move=1;// Choose a random valid move in a losing position
+                    if(1!=move)move=1;
                 }
             } else { // Player is in a losing position
-                move = randomValidMove(sticks, x, y, rand); // Choose a random valid move
+                move = Math.min(minimumMove(sticks, x, y), 1); // Always choose the smallest move
             }
 
             sticks -= move;
@@ -119,27 +120,30 @@ public class model2 {
         if (sticks - y >= 0 && winTable[sticks - y] == 2) maxMove = Math.max(maxMove, y);
 
         if (maxMove == -1) {
-            return randomValidMove(sticks, x, y, new Random()); // Fallback if no winning move found
+            return minimumMove(sticks, x, y); // Fallback if no winning move found
         }
 
         return maxMove;
     }
 
     /**
-     * Determines a random valid move available.
+     * Determines the smallest valid move available.
      *
      * @param sticks The current number of sticks.
      * @param x      The first special move.
      * @param y      The second special move.
-     * @param rand   Random number generator.
-     * @return A random valid move.
+     * @return The smallest valid move.
      */
-    private static int randomValidMove(int sticks, int x, int y, Random rand) {
-        int[] possibleMoves = {1, x, y};
-        int move;
-        do {
-            move = possibleMoves[rand.nextInt(possibleMoves.length)];
-        } while (sticks - move < 0); // Ensure the move is valid
+    private static int minimumMove(int sticks, int x, int y) {
+        // Always select the smallest valid move
+        int move = 1; // Minimum move is to remove 1 stick
+        if (x <= y) {
+            if (sticks - x >= 0) move = x;
+            if (sticks - y >= 0) move = Math.min(move, y);
+        } else {
+            if (sticks - y >= 0) move = y;
+            if (sticks - x >= 0) move = Math.min(move, x);
+        }
         return move;
     }
 }

@@ -1,10 +1,10 @@
 import java.util.Random;
 import java.util.Scanner;
 
-public class model1 {
+public class Strategy3 {
     public static void main(String[] args) {
         Scanner reader = new Scanner(System.in);
-        System.out.println("Strategy 1: Pick Max optimal and Min move if no optimal\n");
+        System.out.println("Strategy 3: Pick random optimal and random move if no optimal\n");
         System.out.println("Enter X:");
         int x = reader.nextInt();
         System.out.println("Enter Y:");
@@ -14,7 +14,7 @@ public class model1 {
         System.out.println("Enter Player 2 accuracy (0.0 to 1.0):");
         double player2Accuracy = reader.nextDouble();
 
-        int maxSticks = 5000;
+        int maxSticks = 1000;
         int[] winTable = new int[maxSticks + 1];
         winTable[0] = 2; // Losing position for the starting player
 
@@ -34,29 +34,26 @@ public class model1 {
 
         Random rand = new Random();
 
-
         int player1Wins = 0;
         int player2Wins = 0;
-        // Start simulating the game for each starting number of sticks from 0 to 1000
-        for(int s =20;s<=100;s++) {
-          
-            for (int i = 0; i < 10000; i++) {
-                int winner = simulateGame(s, x, y, winTable, player1Accuracy, player2Accuracy, rand);
-                if (winner == 1) {
-                    player1Wins++;
-                } else if (winner == 2) {
-                    player2Wins++;
+        for (int i = 0; i < 100000; i++) {
+            int winner = simulateGame(20, x, y, winTable, player1Accuracy, player2Accuracy, rand);
+            if (winner == 1) {
+                player1Wins++;
+            } else if (winner == 2) {
+                player2Wins++;
 
-                }
             }
-     
-
-           
         }
-        System.out.println("Player 1 wins: " + (double)player1Wins/100+"%");
-        System.out.println("Player 2 wins: " + (double)player2Wins/100+"%");
-        reader.close();
 
+
+        System.out.println("Player 1 wins: " + (double)player1Wins/1000+"%");
+        System.out.println("Player 2 wins: " + (double)player2Wins/1000+"%");
+
+
+        System.out.println("Player 1 wins: " + (double)player1Wins/10+"%");
+        System.out.println("Player 2 wins: " + (double)player2Wins/10+"%");
+        reader.close();
     }
 
     /**
@@ -81,14 +78,14 @@ public class model1 {
             int move;
 
             if (canWin) { // Player can potentially win
-                move = maxOptimalMove(sticks, x, y, winTable);
+                move = randomOptimalMove(sticks, x, y, winTable, rand);
                 if (rand.nextDouble() > accuracy) { // Use a suboptimal move instead
                     if(x!=move)move=x;
                     if(y!=move)move=y;
-                    if(1!=move)move=1;
+                    if(1!=move)move=1; // Choose a random valid move
                 }
             } else { // Player is in a losing position
-                move = Math.min(minimumMove(sticks, x, y), 1); // Always choose the smallest move
+                move = randomValidMove(sticks, x, y, rand); // Choose a random valid move
             }
 
             sticks -= move;
@@ -104,46 +101,49 @@ public class model1 {
     }
 
     /**
-     * Determines the maximum optimal move given the current number of sticks.
+     * Determines a random optimal move given the current number of sticks.
      *
      * @param sticks  The current number of sticks.
      * @param x       The first special move.
      * @param y       The second special move.
      * @param winTable The win table indicating winning/losing positions.
-     * @return The optimal move (winning move if available).
+     * @param rand    Random number generator.
+     * @return A random optimal move (winning move if available).
      */
-    private static int maxOptimalMove(int sticks, int x, int y, int[] winTable) {
-        // Optimal move tries to place the opponent in a losing position
-        int maxMove = -1; // Initialize with an invalid value
-        if (sticks - 1 >= 0 && winTable[sticks - 1] == 2) maxMove = 1;
-        if (sticks - x >= 0 && winTable[sticks - x] == 2) maxMove = Math.max(maxMove, x);
-        if (sticks - y >= 0 && winTable[sticks - y] == 2) maxMove = Math.max(maxMove, y);
+    private static int randomOptimalMove(int sticks, int x, int y, int[] winTable, Random rand) {
+        int[] possibleMoves = {1, x, y};
+        int[] optimalMoves = new int[3];
+        int count = 0;
 
-        if (maxMove == -1) {
-            return minimumMove(sticks, x, y); // Fallback if no winning move found
+        for (int move : possibleMoves) {
+            if (sticks - move >= 0 && winTable[sticks - move] == 2) {
+                optimalMoves[count++] = move;
+            }
         }
 
-        return maxMove;
+        if (count > 0) {
+            return optimalMoves[rand.nextInt(count)];
+        }
+
+        // Fallback if no winning move found
+        return randomValidMove(sticks, x, y, rand);
     }
 
     /**
-     * Determines the smallest valid move available.
+     * Determines a random valid move available.
      *
      * @param sticks The current number of sticks.
      * @param x      The first special move.
      * @param y      The second special move.
-     * @return The smallest valid move.
+     * @param rand   Random number generator.
+     * @return A random valid move.
      */
-    private static int minimumMove(int sticks, int x, int y) {
-        // Always select the smallest valid move
-        int move = 1; // Minimum move is to remove 1 stick
-        if (x <= y) {
-            if (sticks - x >= 0) move = x;
-            if (sticks - y >= 0) move = Math.min(move, y);
-        } else {
-            if (sticks - y >= 0) move = y;
-            if (sticks - x >= 0) move = Math.min(move, x);
-        }
+    private static int randomValidMove(int sticks, int x, int y, Random rand) {
+        int[] possibleMoves = {1, x, y};
+        int move;
+        do {
+            move = possibleMoves[rand.nextInt(possibleMoves.length)];
+        } while (sticks - move < 0); // Ensure the move is valid
         return move;
     }
 }
