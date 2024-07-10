@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class NimGame {
+public class MultiPileWinStatementFinder {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
