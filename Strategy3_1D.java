@@ -1,7 +1,7 @@
 import java.util.Random;
 import java.util.Scanner;
 
-public class Strategy3 {
+public class Strategy3_1D {
     public static void main(String[] args) {
         Scanner reader = new Scanner(System.in);
         System.out.println("Strategy 3: Pick random optimal and random move if no optimal\n");
