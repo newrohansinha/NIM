@@ -1,8 +1,10 @@
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.Set;
@@ -47,7 +49,7 @@ public class MultipilePercentWin {
 
             int player1Wins = 0;
             int player2Wins = 0;
-            int totalGames = 100000;
+            int totalGames = 1000;
 
             for (int game = 0; game < totalGames; game++) {
                 moveLogger.println("Game " + (game + 1) + ":");
@@ -122,10 +124,10 @@ public class MultipilePercentWin {
         moveLogger.println(sb.toString());
     }
     private static int getOptimalMove(int[] stones, int[] xValues, int[] yValues) {
-
         int bestMove = -1;
         int maxStonesToRemove = 0;
         int minStonesToRemove = Integer.MAX_VALUE;
+        boolean hasOptimalMove = false;
         
         for (int pile = 0; pile < stones.length; pile++) {
             int[] possibleMoves = {1, xValues[pile], yValues[pile]};
@@ -136,11 +138,12 @@ public class MultipilePercentWin {
                     stones[pile] += move;
                     
                     if (newNimSum == 0) {
+                        hasOptimalMove = true;
                         if (move > maxStonesToRemove) {
                             maxStonesToRemove = move;
                             bestMove = pile * 1000 + move; // Encode pile and move
                         }
-                    } else if (bestMove == -1 && move < minStonesToRemove) {
+                    } else if (!hasOptimalMove && move < minStonesToRemove) {
                         minStonesToRemove = move;
                         bestMove = pile * 1000 + move;
                     }
@@ -148,9 +151,30 @@ public class MultipilePercentWin {
             }
         }
         
+        if (!hasOptimalMove) {
+            // If there's no optimal move, remove the least number of sticks
+            // If there are multiple piles with the minimum move, choose randomly
+            List<Integer> minMovePiles = new ArrayList<>();
+            for (int pile = 0; pile < stones.length; pile++) {
+                if (stones[pile] > 0 && (stones[pile] == minStonesToRemove || (stones[pile] < minStonesToRemove && stones[pile] > 0))) {
+                    minMovePiles.add(pile);
+                }
+            }
+            
+            if (minMovePiles.size() == 1) {
+                // If there's only one pile, no need for random selection
+                int pile = minMovePiles.get(0);
+                bestMove = pile * 1000 + Math.min(stones[pile], Math.min(xValues[pile], yValues[pile]));
+            } else if (minMovePiles.size() > 1) {
+                // If there are multiple piles, choose randomly
+                int randomPile = minMovePiles.get(random.nextInt(minMovePiles.size()));
+                bestMove = randomPile * 1000 + Math.min(stones[randomPile], Math.min(xValues[randomPile], yValues[randomPile]));
+            }
+            // If minMovePiles is empty, bestMove will remain -1, which should be handled in the calling method
+        }
+        
         return bestMove;
     }
-
     private static int calculateNimSum(int[] stones, int[] xValues, int[] yValues) {
         int nimSum = 0;
         for (int i = 0; i < stones.length; i++) {

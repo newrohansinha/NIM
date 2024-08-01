@@ -1,9 +1,7 @@
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Random;
 import java.util.Scanner;
 
-public class AccuracyCombinations_1D {
+public class compareAccuracyChangingSticks {
     public static void main(String[] args) {
         Scanner reader = new Scanner(System.in);
         System.out.println("Strategy 1: Pick Max optimal and Min move if no optimal\n");
@@ -11,8 +9,14 @@ public class AccuracyCombinations_1D {
         int x = reader.nextInt();
         System.out.println("Enter Y:");
         int y = reader.nextInt();
-        System.out.println("How many sticks:");
-        int n = reader.nextInt();
+        System.out.println("Enter sticks step: ");
+        int sticks_step = reader.nextInt();
+        System.out.println("Enter start stick: ");
+        int start_stick = reader.nextInt();
+        System.out.println("Enter Player 1 accuracy (0.0 to 1.0):");
+        double player1Accuracy = reader.nextDouble();
+        System.out.println("Enter Player 2 accuracy (0.0 to 1.0):");
+        double player2Accuracy = reader.nextDouble();
 
         int maxSticks = 5000;
         int[] winTable = new int[maxSticks + 1];
@@ -31,44 +35,32 @@ public class AccuracyCombinations_1D {
             }
         }
 
+
         Random rand = new Random();
 
-        try (FileWriter writer = new FileWriter("outputs.txt")) {
-            for (double player1Accuracy = 0.01; player1Accuracy < 1.0; player1Accuracy += 0.01) {
-                double minDifference = Double.MAX_VALUE;
 
-                for (double player2Accuracy = 0.01; player2Accuracy < 1.0; player2Accuracy += 0.01) {
-                    int player1Wins = 0;
-                    int player2Wins = 0;
-                    for (int i = 0; i < 100000; i++) {
-                        int winner = simulateGame(n, x, y, winTable, player1Accuracy, player2Accuracy, rand);
-                        if (winner == 1) {
-                            player1Wins++;
-                        } else if (winner == 2) {
-                            player2Wins++;
-                        }
-                    }
 
-                    double player1WinPercent = (double) player1Wins / 1000;
-                    double player2WinPercent = (double) player2Wins / 10500;
+        // Start simulating the game for each starting number of sticks from 0 to 1000
+        for(int s=start_stick;s<=300;s+=sticks_step) {
+            int player1Wins = 0;
+            int player2Wins = 0;
+            for (int i = 0; i < 100000; i++) {
+                int winner = simulateGame(s, x, y, winTable, player1Accuracy, player2Accuracy, rand);
+                if (winner == 1) {
+                    player1Wins++;
+                } else if (winner == 2) {
+                    player2Wins++;
 
-                    if (player1WinPercent > player2WinPercent) {
-                        double difference = Math.abs(player1Accuracy - player2Accuracy);
-                        if (difference < minDifference) {
-                            minDifference = difference;
-                        }
-                    }
-                }
-
-                if (minDifference < Double.MAX_VALUE) {
-                    writer.write(String.format("%.3f,%.3f%n", player1Accuracy, minDifference));
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+           
 
+            System.out.print("["+s+", " +(double)player1Wins/1000+"], ");
+           
+        }
+
+    }
+ 
     /**
      * Simulates the game from a given starting number of sticks with controlled imperfections.
      *
@@ -93,9 +85,9 @@ public class AccuracyCombinations_1D {
             if (canWin) { // Player can potentially win
                 move = maxOptimalMove(sticks, x, y, winTable);
                 if (rand.nextDouble() > accuracy) { // Use a suboptimal move instead
-                    if (x != move) move = x;
-                    if (y != move) move = y;
-                    if (1 != move) move = 1;
+                    if(x!=move)move=x;
+                    if(y!=move)move=y;
+                    if(1!=move)move=1;
                 }
             } else { // Player is in a losing position
                 move = Math.min(minimumMove(sticks, x, y), 1); // Always choose the smallest move
@@ -145,6 +137,7 @@ public class AccuracyCombinations_1D {
      * @return The smallest valid move.
      */
     private static int minimumMove(int sticks, int x, int y) {
+        // Always select the smallest valid move
         int move = 1; // Minimum move is to remove 1 stick
         if (x <= y) {
             if (sticks - x >= 0) move = x;

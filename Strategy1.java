@@ -31,32 +31,25 @@ public class Strategy1 {
             }
         }
 
-
         Random rand = new Random();
-
 
         int player1Wins = 0;
         int player2Wins = 0;
-        // Start simulating the game for each starting number of sticks from 0 to 1000
-        for(int s =20;s<=100;s++) {
-          
-            for (int i = 0; i < 10000; i++) {
-                int winner = simulateGame(s, x, y, winTable, player1Accuracy, player2Accuracy, rand);
-                if (winner == 1) {
-                    player1Wins++;
-                } else if (winner == 2) {
-                    player2Wins++;
+        int startingSticks =7;
 
-                }
+        // Start simulating the game for 4 starting sticks 100,000 times
+        for (int i = 0; i < 100000; i++) {
+            int winner = simulateGame(startingSticks, x, y, winTable, player1Accuracy, player2Accuracy, rand);
+            if (winner == 1) {
+                player1Wins++;
+            } else if (winner == 2) {
+                player2Wins++;
             }
-     
-
-           
         }
-        System.out.println("Player 1 wins: " + (double)player1Wins/10000+"%");
-        System.out.println("Player 2 wins: " + (double)player2Wins/10000+"%");
-        reader.close();
 
+        System.out.println("Player 1 wins: " + (double) player1Wins / 1000 + "%");
+        System.out.println("Player 2 wins: " + (double) player2Wins / 1000 + "%");
+        reader.close();
     }
 
     /**
@@ -83,9 +76,9 @@ public class Strategy1 {
             if (canWin) { // Player can potentially win
                 move = maxOptimalMove(sticks, x, y, winTable);
                 if (rand.nextDouble() > accuracy) { // Use a suboptimal move instead
-                    if(x!=move)move=x;
-                    if(y!=move)move=y;
-                    if(1!=move)move=1;
+                    if (x != move) move = x;
+                    if (y != move) move = y;
+                    if (1 != move) move = 1;
                 }
             } else { // Player is in a losing position
                 move = Math.min(minimumMove(sticks, x, y), 1); // Always choose the smallest move
@@ -135,7 +128,6 @@ public class Strategy1 {
      * @return The smallest valid move.
      */
     private static int minimumMove(int sticks, int x, int y) {
-        // Always select the smallest valid move
         int move = 1; // Minimum move is to remove 1 stick
         if (x <= y) {
             if (sticks - x >= 0) move = x;
