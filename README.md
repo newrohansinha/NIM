@@ -1,7 +1,5 @@
-# NIM Research Toolkit — Sprague–Grundy, Imperfect Play, Stabilization Analysis
+# NIM — Sprague–Grundy, Imperfect Play, Stabilization Analysis
 
-README generated on 2025-10-18. Math-first. **GitHub math renders on the web UI using `$...$` for inline and fenced ` ```math ` blocks for display.**  
-If you ever see raw TeX: view on github.com (not “Raw” or the mobile app).
 
 ---
 
